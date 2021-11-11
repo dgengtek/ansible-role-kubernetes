@@ -40,7 +40,7 @@
 - name: Get the kubeadm join command from the Kubernetes master.
   shell: 'kubeadm token create --print-join-command'
   register: kubernetes_join_command_result
-  delegate_to: "{{ groups['master'][0] }}"
+  delegate_to: "{{ kubernetes_master }}"
 
 - name: Set the kubeadm join command globally.
   set_fact:
