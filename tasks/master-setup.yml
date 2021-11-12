@@ -46,9 +46,8 @@
   when: kubernetes_pod_network.cni == 'flannel'
 
 - name: Configure Calico networking.
-  command: "{{ item }}"
-  with_items:
-    - kubectl apply -f {{ kubernetes_calico_manifest_file }}
+  command: "kubectl create -f {{ item }}"
+  loop: "{{ kubernetes_calico_manifests }}"
   register: calico_result
   changed_when: "'created' in calico_result.stdout"
   when: kubernetes_pod_network.cni == 'calico'
