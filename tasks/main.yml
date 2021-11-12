@@ -37,18 +37,21 @@
 - include_tasks: master-setup.yml
   when: kubernetes_role == 'master'
 
-- name: Get the kubeadm join command from the Kubernetes master.
-  shell: 'kubeadm token create --print-join-command'
-  register: kubernetes_join_command_result
-  delegate_to: "{{ kubernetes_master }}"
+- name: Join node to master
+  when: kubernetes_master is defined
+  block:
+  - name: Get the kubeadm join command from the Kubernetes master.
+    shell: 'kubeadm token create --print-join-command'
+    register: kubernetes_join_command_result
+    delegate_to: "{{ kubernetes_master }}"
 
-- name: Set the kubeadm join command globally.
-  set_fact:
-    kubernetes_join_command: >
-      {{ kubernetes_join_command_result.stdout }}
-      {{ kubernetes_join_command_extra_opts }}
+  - name: Set the kubeadm join command globally.
+    set_fact:
+      kubernetes_join_command: >
+        {{ kubernetes_join_command_result.stdout }}
+        {{ kubernetes_join_command_extra_opts }}
 
-- debug: var=kubernetes_join_command
+  - debug: var=kubernetes_join_command
 
-- include_tasks: node-setup.yml
-  when: kubernetes_role == 'node'
+  - include_tasks: node-setup.yml
+    when: kubernetes_role == 'node'
